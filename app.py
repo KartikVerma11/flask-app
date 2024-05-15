@@ -233,7 +233,7 @@ def load_elementary_vocabulary():
 
 # Submit words from form
 @app.route('/api/submitWords', methods=['POST'])
-@cross_origin(origin='http://localhost:3000')  # Allow requests from localhost:3000
+@cross_origin(origin='https://www.thunderclient.com')  # Allow requests from localhost:3000
 def submit_words():
     request_data = request.json  
     submitted_words = request_data  
@@ -252,7 +252,7 @@ def submit_words():
     return jsonify(response)
 
 @app.route('/api/submit_text', methods=['GET','POST'])
-@cross_origin(origin='http://localhost:5000')  # Allow requests from localhost:3000
+@cross_origin(origin='https://www.thunderclient.com')  # Allow requests from localhost:3000
 def submit_text():
     # text extracted will be here
     print(request)
