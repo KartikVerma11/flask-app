@@ -18,6 +18,7 @@ import eng_to_ipa as ipa
 from abydos.phonetic import Soundex, Metaphone, Caverphone, NYSIIS
 import pickle
 from dotenv import load_dotenv
+from spellchecker import SpellChecker
 
 load_dotenv()
 
@@ -66,7 +67,22 @@ def spelling_accuracy(extracted_text):
 
 
 # ***************************************************
-my_tool = language_tool_python.LanguageTool('en-US')
+# my_tool = language_tool_python.LanguageTool('en-US')
+
+class MyTool:
+  def __init__(self, language='en'):
+    self.spell_checker = SpellChecker(language=language)
+
+  def correct(self, text):
+    # Spell check and correct the text
+    corrected_text = []
+    for word in text.split():
+      corrected_word = self.spell_checker.correction(word)
+      corrected_text.append(corrected_word)
+    return ' '.join(corrected_text)
+
+# Usage:
+my_tool = MyTool()
 
 # ***************************************************
 def gramatical_accuracy(extracted_text):
