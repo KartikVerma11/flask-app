@@ -16,7 +16,6 @@ from PIL import Image
 import pyttsx3
 import eng_to_ipa as ipa
 from abydos.phonetic import Soundex, Metaphone, Caverphone, NYSIIS
-import pickle
 from dotenv import load_dotenv
 from spellchecker import SpellChecker
 
@@ -27,9 +26,9 @@ CORS(app)
 
 quiz_model = None
 
-# please update this location brother *******************************************************************
+
 with open(r"Random_Forest_Model.sav", 'rb') as file:
-  quiz_model = pickle.load(file)
+  quiz_model = pkl.load(file)
 
 
 loaded_model = None
@@ -38,7 +37,7 @@ with open(r"Decision_tree_model.sav", 'rb') as file:
   loaded_model = pkl.load(file)
 
 # code for test.py starts here 
-# ****************************************************************
+# **********************
 def levenshtein(s1, s2):
     # Initialize a matrix to store the Levenshtein distances
     matrix = [[0] * (len(s2) + 1) for _ in range(len(s1) + 1)]
@@ -60,31 +59,32 @@ def levenshtein(s1, s2):
     # Return the Levenshtein distance between the last elements of s1 and s2
     return matrix[len(s1)][len(s2)]
 
-# ***************************************************
+# *****************
 def spelling_accuracy(extracted_text):
   spell_corrected = TextBlob(extracted_text).correct()
   return ((len(extracted_text) - (levenshtein(extracted_text, spell_corrected)))/(len(extracted_text)+1))*100
 
 
-# ***************************************************
+# *****************
 # my_tool = language_tool_python.LanguageTool('en-US')
-
 class MyTool:
   def __init__(self, language='en'):
     self.spell_checker = SpellChecker(language=language)
 
   def correct(self, text):
-    # Spell check and correct the text
+      # Spell check and correct the text
     corrected_text = []
     for word in text.split():
       corrected_word = self.spell_checker.correction(word)
-      corrected_text.append(corrected_word)
+      if corrected_word is not None:
+        corrected_text.append(corrected_word)
+      else:
+        corrected_text.append(word)  # Keep the original word if correction returns None
     return ' '.join(corrected_text)
 
 # Usage:
 my_tool = MyTool()
 
-# ***************************************************
 def gramatical_accuracy(extracted_text):
   spell_corrected = TextBlob(extracted_text).correct()
   correct_text = my_tool.correct(spell_corrected)
@@ -92,16 +92,16 @@ def gramatical_accuracy(extracted_text):
   correct_text_set = set(correct_text.split(" "))
   n = max(len(extracted_text_set - correct_text_set),
           len(correct_text_set - extracted_text_set))
-  return ((len(spell_corrected) - n)/(len(spell_corrected)+1))*100
+  return ((len(spell_corrected) - n) / (len(spell_corrected) + 1)) * 100
 
-# ****************************************************
+# ******************
 
 # text correction API authentication
 api_key_textcorrection = os.getenv('api_key_textcorrection')
 endpoint_textcorrection = os.getenv('endpoint_textcorrection')
 
 
-# ****************************************************
+# ******************
 def percentage_of_corrections(extracted_text):
   data = {'text': extracted_text}
   params = {
@@ -122,7 +122,7 @@ def percentage_of_corrections(extracted_text):
     percentage_corrected = 0
   return percentage_corrected
 
-# ****************************************************
+# ******************
 def percentage_of_phonetic_accuraccy(extracted_text: str):
   soundex = Soundex()
   metaphone = Metaphone()
@@ -165,21 +165,18 @@ def percentage_of_phonetic_accuraccy(extracted_text: str):
   return ((0.5*caverphone_score + 0.2*soundex_score + 0.2*metaphone_score + 0.1 * nysiis_score))*100
 
 
-# ****************************************************************
+# **********************
 def calculate_score(extracted_phonetics, spell_corrected_phonetics):
     total_distance = sum(levenshtein(extracted, corrected) for extracted, corrected in zip(extracted_phonetics, spell_corrected_phonetics))
     return (1 - total_distance / len(extracted_phonetics)) if extracted_phonetics else 0
 
 
-# ****************************************************************
+# **********************
 def get_feature_array(extracted_text):
   # path is the path of image, but i am using text.
   feature_array = []
-#   extracted_text = image_to_text(path)
-  # *****************************************************************************************
-#   extracted_text = 'knowing the time of separation and the activity of the lead-210 solution, the ingrauth Of the bismuth-210 can be calculated. The absolute activity of the reference standards can be calculated from the known activity of the lead-210 solution and the chemical yleld, but this calculation is unneces necessary. Provided the same lead carrier solution is used to prepare and the reference standards For the analyses.'
-  
-  # *****************************************************************************************
+
+  # *******************************
   feature_array.append(spelling_accuracy(extracted_text))
   feature_array.append(gramatical_accuracy(extracted_text))
   feature_array.append(percentage_of_corrections(extracted_text))
@@ -189,14 +186,12 @@ def get_feature_array(extracted_text):
 
 from flask import jsonify
 
-app = Flask(__name__)
-CORS(app)
-
 # Computer will speak almost 10 words
 spoken_words = []
 
+# Fetch words from the elementary vocabulary ***************
 @app.route('/api/fetchWords', methods=['POST'])
-@cross_origin(origin='https://www.thunderclient.com')  # Allow requests from localhost:3000
+@cross_origin(origin='http://localhost:3000')  # Allow requests from localhost:3000
 def fetch_words():
     # Load the elementary vocabulary from CSV
     global spoken_words
@@ -231,9 +226,9 @@ def load_elementary_vocabulary():
     return random.sample(vocabulary, k=10)
 
 
-# Submit words from form
+# Submit words from form ***************
 @app.route('/api/submitWords', methods=['POST'])
-@cross_origin(origin='https://www.thunderclient.com')  # Allow requests from localhost:3000
+@cross_origin(origin='http://localhost:3000')  # Allow requests from localhost:3000
 def submit_words():
     request_data = request.json  
     submitted_words = request_data  
@@ -251,8 +246,9 @@ def submit_words():
     
     return jsonify(response)
 
+# **********************
 @app.route('/api/submit_text', methods=['GET','POST'])
-@cross_origin(origin='https://www.thunderclient.com')  # Allow requests from localhost:3000
+@cross_origin(origin='http://localhost:5000')  # Allow requests from localhost:3000
 def submit_text():
     # text extracted will be here
     print(request)
@@ -270,10 +266,6 @@ def submit_text():
     else:
         result = "There's a high chance that this person is suffering from dyslexia or dysgraphia"
 
-    # Calculate score using Levenshtein distance (assuming levenshtein function is defined)
-    # score = levenshtein(spoken_words, submitted_words)
-
-    # print("Score is", score) 
 
     response = {
         "ok": True,
@@ -284,10 +276,10 @@ def submit_text():
     return jsonify(response)
 
 
+# **********************
 @app.route('/api/submit_quiz', methods=['GET','POST'])
-@cross_origin(origin='https://www.thunderclient.com')  # Allow requests from localhost:3000
+@cross_origin(origin='http://localhost:5000')  # Allow requests from localhost:5000
 def submit_quiz():
-
   data = request.json  
   # print(data)
 
@@ -314,7 +306,6 @@ def submit_quiz():
   visual = (extracted_object['q1'] + extracted_object['q3'] + extracted_object['q4'] + extracted_object['q6'])/16
   audio = (extracted_object['q7']+extracted_object['q10'])/8
 
-
   # request_data = request.json  
   # extracted_array = request_data.quiz
   # # i have an array and time 
@@ -335,7 +326,7 @@ def submit_quiz():
   }
   return jsonify(response)
 
-
+# **********************
 def get_result(lang_vocab, memory, speed, visual, audio, survey):
   #2D numpy array created with the values input by the user.
   array = np.array([[lang_vocab, memory, speed, visual, audio, survey]])
@@ -350,9 +341,7 @@ def get_result(lang_vocab, memory, speed, visual, audio, survey):
     output = "There is a low chance of the applicant to have dyslexia."
   return output
 
-
-# for writing disabilities code is here below
-
+# **********************
 if __name__ == '__main__':
   print("server is running on port 8000")
   app.run(debug=True, port=os.getenv('PORT'))
