@@ -252,13 +252,12 @@ def submit_words():
     return jsonify(response)
 
 @app.route('/api/submit_text', methods=['GET','POST'])
-@cross_origin(origin='https://www.thunderclient.com')  # Allow requests from localhost:3000
+@cross_origin(origin='http://localhost:5000')  # Allow requests from localhost:3000
 def submit_text():
     # text extracted will be here
+    print(request)
     request_data = request.json  
-    extracted_text = request_data.text
-
-    # extracted_text = 'I wot a sil-Plat It was var kol I that tht was voir -kol the blat was'
+    extracted_text = request_data.get('text')
 
     features = get_feature_array(extracted_text)
     features_array = np.array([features])
@@ -356,4 +355,4 @@ def get_result(lang_vocab, memory, speed, visual, audio, survey):
 
 if __name__ == '__main__':
   print("server is running on port 8000")
-  app.run(debug=True, port=8000)
+  app.run(debug=True, port=os.getenv('PORT'))
