@@ -196,7 +196,7 @@ CORS(app)
 spoken_words = []
 
 @app.route('/api/fetchWords', methods=['POST'])
-@cross_origin(origin='http://localhost:3000')  # Allow requests from localhost:3000
+@cross_origin(origin='https://www.thunderclient.com')  # Allow requests from localhost:3000
 def fetch_words():
     # Load the elementary vocabulary from CSV
     global spoken_words
@@ -252,7 +252,7 @@ def submit_words():
     return jsonify(response)
 
 @app.route('/api/submit_text', methods=['GET','POST'])
-@cross_origin(origin='http://localhost:3000')  # Allow requests from localhost:3000
+@cross_origin(origin='https://www.thunderclient.com')  # Allow requests from localhost:3000
 def submit_text():
     # text extracted will be here
     request_data = request.json  
@@ -286,7 +286,7 @@ def submit_text():
 
 
 @app.route('/api/submit_quiz', methods=['GET','POST'])
-@cross_origin(origin='http://localhost:3000')  # Allow requests from localhost:3000
+@cross_origin(origin='https://www.thunderclient.com')  # Allow requests from localhost:3000
 def submit_quiz():
 
   data = request.json  
