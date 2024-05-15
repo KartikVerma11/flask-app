@@ -248,7 +248,7 @@ def submit_words():
 
 # **********************
 @app.route('/api/submit_text', methods=['GET','POST'])
-@cross_origin(origin='*')  # Allow requests from localhost:3000
+@cross_origin()  # Allow requests from localhost:3000
 def submit_text():
     # text extracted will be here
     print(request)
