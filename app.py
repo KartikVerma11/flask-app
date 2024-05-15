@@ -98,7 +98,7 @@ def gramatical_accuracy(extracted_text):
 
 # text correction API authentication
 api_key_textcorrection = os.getenv('api_key_textcorrection')
-endpoint_textcorrection = os.getenv('endpoint_textcorrection')
+endpoint_textcorrection = "https://api.bing.microsoft.com/"
 
 
 # ******************
@@ -255,6 +255,9 @@ def submit_text():
     request_data = request.json  
     extracted_text = request_data.get('text')
 
+    if not extracted_text:
+      return jsonify({"ok": False, "error": "No text provided"})
+    
     features = get_feature_array(extracted_text)
     features_array = np.array([features])
     prediction = loaded_model.predict(features_array)
@@ -344,4 +347,4 @@ def get_result(lang_vocab, memory, speed, visual, audio, survey):
 # **********************
 if __name__ == '__main__':
   print("server is running on port 8000")
-  app.run(debug=True, port=os.getenv('PORT'))
+  app.run(debug=True, port=os.getenv('PORT', 8000))
