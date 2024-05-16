@@ -17,7 +17,6 @@ import pyttsx3
 import eng_to_ipa as ipa
 from abydos.phonetic import Soundex, Metaphone, Caverphone, NYSIIS
 from dotenv import load_dotenv
-from spellchecker import SpellChecker
 
 load_dotenv()
 
@@ -37,7 +36,7 @@ with open(r"Decision_tree_model.sav", 'rb') as file:
   loaded_model = pkl.load(file)
 
 # code for test.py starts here 
-# **********************
+# ****************************************************************
 def levenshtein(s1, s2):
     # Initialize a matrix to store the Levenshtein distances
     matrix = [[0] * (len(s2) + 1) for _ in range(len(s1) + 1)]
@@ -59,32 +58,16 @@ def levenshtein(s1, s2):
     # Return the Levenshtein distance between the last elements of s1 and s2
     return matrix[len(s1)][len(s2)]
 
-# *****************
+# ***************************************************
 def spelling_accuracy(extracted_text):
   spell_corrected = TextBlob(extracted_text).correct()
   return ((len(extracted_text) - (levenshtein(extracted_text, spell_corrected)))/(len(extracted_text)+1))*100
 
 
-# *****************
-# my_tool = language_tool_python.LanguageTool('en-US')
-class MyTool:
-  def __init__(self, language='en'):
-    self.spell_checker = SpellChecker(language=language)
+# ***************************************************
+my_tool = language_tool_python.LanguageTool('en-US')
 
-  def correct(self, text):
-      # Spell check and correct the text
-    corrected_text = []
-    for word in text.split():
-      corrected_word = self.spell_checker.correction(word)
-      if corrected_word is not None:
-        corrected_text.append(corrected_word)
-      else:
-        corrected_text.append(word)  # Keep the original word if correction returns None
-    return ' '.join(corrected_text)
-
-# Usage:
-my_tool = MyTool()
-
+# ***************************************************
 def gramatical_accuracy(extracted_text):
   spell_corrected = TextBlob(extracted_text).correct()
   correct_text = my_tool.correct(spell_corrected)
@@ -92,16 +75,16 @@ def gramatical_accuracy(extracted_text):
   correct_text_set = set(correct_text.split(" "))
   n = max(len(extracted_text_set - correct_text_set),
           len(correct_text_set - extracted_text_set))
-  return ((len(spell_corrected) - n) / (len(spell_corrected) + 1)) * 100
+  return ((len(spell_corrected) - n)/(len(spell_corrected)+1))*100
 
-# ******************
+# ****************************************************
 
 # text correction API authentication
 api_key_textcorrection = os.getenv('api_key_textcorrection')
 endpoint_textcorrection = "https://api.bing.microsoft.com/"
 
 
-# ******************
+# ****************************************************
 def percentage_of_corrections(extracted_text):
   data = {'text': extracted_text}
   params = {
@@ -122,7 +105,7 @@ def percentage_of_corrections(extracted_text):
     percentage_corrected = 0
   return percentage_corrected
 
-# ******************
+# ****************************************************
 def percentage_of_phonetic_accuraccy(extracted_text: str):
   soundex = Soundex()
   metaphone = Metaphone()
@@ -165,18 +148,18 @@ def percentage_of_phonetic_accuraccy(extracted_text: str):
   return ((0.5*caverphone_score + 0.2*soundex_score + 0.2*metaphone_score + 0.1 * nysiis_score))*100
 
 
-# **********************
+# ****************************************************************
 def calculate_score(extracted_phonetics, spell_corrected_phonetics):
     total_distance = sum(levenshtein(extracted, corrected) for extracted, corrected in zip(extracted_phonetics, spell_corrected_phonetics))
     return (1 - total_distance / len(extracted_phonetics)) if extracted_phonetics else 0
 
 
-# **********************
+# ****************************************************************
 def get_feature_array(extracted_text):
   # path is the path of image, but i am using text.
   feature_array = []
 
-  # *******************************
+  # *****************************************************************************************
   feature_array.append(spelling_accuracy(extracted_text))
   feature_array.append(gramatical_accuracy(extracted_text))
   feature_array.append(percentage_of_corrections(extracted_text))
@@ -189,7 +172,7 @@ from flask import jsonify
 # Computer will speak almost 10 words
 spoken_words = []
 
-# Fetch words from the elementary vocabulary ***************
+# Fetch words from the elementary vocabulary *******************************************
 @app.route('/api/fetchWords', methods=['POST'])
 @cross_origin(origin='http://localhost:3000')  # Allow requests from localhost:3000
 def fetch_words():
@@ -226,7 +209,7 @@ def load_elementary_vocabulary():
     return random.sample(vocabulary, k=10)
 
 
-# Submit words from form ***************
+# Submit words from form *******************************************
 @app.route('/api/submitWords', methods=['POST'])
 @cross_origin(origin='http://localhost:3000')  # Allow requests from localhost:3000
 def submit_words():
@@ -246,7 +229,7 @@ def submit_words():
     
     return jsonify(response)
 
-# **********************
+# ****************************************************************
 @app.route('/api/submit_text', methods=['GET','POST'])
 @cross_origin()  # Allow requests from localhost:3000
 def submit_text():
@@ -255,9 +238,6 @@ def submit_text():
     request_data = request.json  
     extracted_text = request_data.get('text')
 
-    if not extracted_text:
-      return jsonify({"ok": False, "error": "No text provided"})
-    
     features = get_feature_array(extracted_text)
     features_array = np.array([features])
     prediction = loaded_model.predict(features_array)
@@ -279,7 +259,7 @@ def submit_text():
     return jsonify(response)
 
 
-# **********************
+# ****************************************************************
 @app.route('/api/submit_quiz', methods=['GET','POST'])
 @cross_origin(origin='http://localhost:5000')  # Allow requests from localhost:5000
 def submit_quiz():
@@ -329,7 +309,7 @@ def submit_quiz():
   }
   return jsonify(response)
 
-# **********************
+# ****************************************************************
 def get_result(lang_vocab, memory, speed, visual, audio, survey):
   #2D numpy array created with the values input by the user.
   array = np.array([[lang_vocab, memory, speed, visual, audio, survey]])
@@ -344,7 +324,7 @@ def get_result(lang_vocab, memory, speed, visual, audio, survey):
     output = "There is a low chance of the applicant to have dyslexia."
   return output
 
-# **********************
+# ****************************************************************
 if __name__ == '__main__':
   print("server is running on port 8000")
   app.run(debug=True, port=os.getenv('PORT', 8000))
