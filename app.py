@@ -7,7 +7,6 @@ import csv
 import pickle as pkl
 import numpy as np
 from textblob import TextBlob
-import language_tool_python
 import requests
 import pandas as pd
 import speech_recognition as srS
@@ -17,6 +16,7 @@ import pyttsx3
 import eng_to_ipa as ipa
 from abydos.phonetic import Soundex, Metaphone, Caverphone, NYSIIS
 from dotenv import load_dotenv
+from language_tool_python.server import LanguageTool
 
 load_dotenv()
 
@@ -65,7 +65,7 @@ def spelling_accuracy(extracted_text):
 
 
 # ***************************************************
-my_tool = language_tool_python.LanguageTool('en-US')
+my_tool = LanguageTool('en-US')
 
 # ***************************************************
 def gramatical_accuracy(extracted_text):
@@ -77,7 +77,7 @@ def gramatical_accuracy(extracted_text):
           len(correct_text_set - extracted_text_set))
   return ((len(spell_corrected) - n)/(len(spell_corrected)+1))*100
 
-# ****************************************************
+# # ****************************************************
 
 # text correction API authentication
 api_key_textcorrection = os.getenv('api_key_textcorrection')
