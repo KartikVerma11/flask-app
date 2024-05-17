@@ -16,7 +16,7 @@ import pyttsx3
 import eng_to_ipa as ipa
 from abydos.phonetic import Soundex, Metaphone, Caverphone, NYSIIS
 from dotenv import load_dotenv
-from language_tool_python.server import LanguageTool
+import language_tool_python
 
 load_dotenv()
 
@@ -65,7 +65,7 @@ def spelling_accuracy(extracted_text):
 
 
 # ***************************************************
-my_tool = LanguageTool('en-US')
+my_tool = language_tool_python.LanguageTool('en-US')
 
 # ***************************************************
 def gramatical_accuracy(extracted_text):
