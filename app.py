@@ -227,9 +227,4 @@ def get_result(lang_vocab, memory, speed, visual, audio, survey):
 # **********************
 if __name__ == '__main__':
   print("server is running on port 8000")
-  app.run(debug=True,port=os.getenv('PORT'))
-
-
-
-
-# app.run(debug=True, port=5000, host='0.0.0.0')
+  app.run(debug=True,port=os.getenv('PORT'),host='0.0.0.0')
