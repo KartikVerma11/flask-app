@@ -12,7 +12,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 quiz_model = None
 with open(r"Random_Forest_Model.sav", 'rb') as file:
@@ -157,7 +157,7 @@ def get_feature_array(extracted_text):
 
 # **********************
 @app.route('/api/submit_text', methods=['GET','POST'])
-@cross_origin(origin='http://localhost:5000')  # Allow requests from localhost:3000
+@cross_origin(origin='*')  # Allow requests from all origins
 def submit_text():
     # text extracted will be here
     print(request)
@@ -187,43 +187,17 @@ def submit_text():
 
 # **********************
 @app.route('/api/submit_quiz', methods=['GET','POST'])
-@cross_origin(origin='http://localhost:5000')  # Allow requests from localhost:5000
+@cross_origin(origin='*')  # Allow requests from all origins
 def submit_quiz():
   data = request.json  
-  # print(data)
-
-  # Check if the request data exists
-  # if not data:
-  #   return jsonify({"ok": False, "message": "No data received"})
-
-
   extracted_object = data.get('quiz')
-  print("Quiz array:", extracted_object)
-
   time_value = data.get('time')
-  print("Time value:", time_value)
 
-  # Check if both 'quiz' and 'time' attributes exist
-  # if not extracted_object or not time_value:
-  #   return jsonify({"ok": False, "message": "Incomplete data received"})
-
-  # # i have an array and time 
   lang_vocab = (extracted_object['q1'] + extracted_object['q2'] + extracted_object['q3'] + extracted_object['q4'] + extracted_object['q5'] + extracted_object['q6'] + extracted_object['q8'])/28
   memory = (extracted_object['q2']+ extracted_object['q9'])/8
   speed = 1 - (time_value / 60000) ; 
-  # speed = 0.5
   visual = (extracted_object['q1'] + extracted_object['q3'] + extracted_object['q4'] + extracted_object['q6'])/16
   audio = (extracted_object['q7']+extracted_object['q10'])/8
-
-  # request_data = request.json  
-  # extracted_array = request_data.quiz
-  # # i have an array and time 
-
-  # lang_vocab = (extracted_array[1] + extracted_array[2] + extracted_array[3] + extracted_array[4] + extracted_array[5] + extracted_array[6] + extracted_array[8])/28
-  # memory = (extracted_array[2]+ extracted_array[9])/8
-  # speed = 0.5
-  # visual = (extracted_array[1] + extracted_array[3] + extracted_array[4] + extracted_array[6])/16
-  # audio = (extracted_array[7]+extracted_array[10])/8
 
   survey = (lang_vocab + memory + speed + visual + audio)/80
   result = get_result(lang_vocab, memory, speed, visual, audio, survey)
@@ -253,4 +227,4 @@ def get_result(lang_vocab, memory, speed, visual, audio, survey):
 # **********************
 if __name__ == '__main__':
   print("server is running on port 8000")
-  app.run(debug=True, port=8000)
+  app.run(debug=True, port=8000, host='0.0.0.0')
