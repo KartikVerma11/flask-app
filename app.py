@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS, cross_origin
 import pickle as pkl
 import numpy as np
@@ -23,6 +23,12 @@ with open(r"Random_Forest_Model.sav", 'rb') as file:
 loaded_model = None
 with open(r"Decision_tree_model.sav", 'rb') as file:
   loaded_model = pkl.load(file)
+
+@app.route('/')
+def home():
+  return render_template('index.html')
+
+
 
 # code for test.py starts here 
 # **********************
