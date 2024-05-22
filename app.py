@@ -53,7 +53,8 @@ def spelling_accuracy(extracted_text):
 
 
 # *****************
-my_tool = language_tool_python.LanguageTool('en-US',url='http://127.0.0.1:8082')
+my_tool = language_tool_python.LanguageTool('en-US')
+# my_tool = language_tool_python.LanguageTool('en-US',url='http://127.0.0.1:8082')
 
 # *****************
 def gramatical_accuracy(extracted_text):

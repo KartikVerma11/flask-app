@@ -15,6 +15,6 @@ Once installed, you can use BuildX as follows:
 
 sh
 Copy code
-# docker buildx create --use
-# docker buildx build -t flask .
+# docker build -t flask .
+# docker run -p 8000:8000 -d flask
 # docker run -p 8000:8000 flask
