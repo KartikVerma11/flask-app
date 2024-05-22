@@ -228,7 +228,5 @@ def get_result(lang_vocab, memory, speed, visual, audio, survey):
 
 # **********************
 if __name__ == '__main__':
-  # port = int(os.getenv('PORT', 8000))
-  # print(f"server is running on port {port}")
-  # app.run(debug=False, port=port, host='0.0.0.0')
-  app.run()
+  port = int(os.getenv('PORT', 5000))  # Default to 5000 if PORT is not set
+  app.run(host='0.0.0.0', port=port, debug=False)  # Set debug to False for production
