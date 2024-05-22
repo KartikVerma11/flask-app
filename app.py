@@ -12,7 +12,8 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
+# CORS(app, resources={r"/*": {"origins": "*"}})
 
 quiz_model = None
 with open(r"Random_Forest_Model.sav", 'rb') as file:
@@ -227,6 +228,7 @@ def get_result(lang_vocab, memory, speed, visual, audio, survey):
 
 # **********************
 if __name__ == '__main__':
-  port = int(os.getenv('PORT', 8000))
-  print(f"server is running on port {port}")
-  app.run(debug=True, port=port, host='0.0.0.0')
+  # port = int(os.getenv('PORT', 8000))
+  # print(f"server is running on port {port}")
+  # app.run(debug=False, port=port, host='0.0.0.0')
+  app.run()
