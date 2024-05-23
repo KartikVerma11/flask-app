@@ -12,7 +12,7 @@ cymem==2.0.8
 deprecation==2.1.0
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl#sha256=86cc141f63942d4b2c5fcee06630fd6f904788d2f0ab005cce45aadb8fb73889
 eng-to-ipa==0.0.2
-Flask==3.0.3
+Flask==2.0.3
 Flask-Cors==4.0.1
 gTTS==2.5.1
 gunicorn==22.0.0
@@ -65,4 +65,5 @@ tzdata==2024.1
 urllib3==2.2.1
 wasabi==1.1.2
 weasel==0.3.4
-Werkzeug==3.0.3
+Werkzeug==2.1.1
+
