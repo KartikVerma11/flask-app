@@ -12,13 +12,19 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Java
 RUN apt-get update && \
-    apt-get install -y openjdk-11-jdk && \
+    apt-get install -y openjdk-11-jdk wget && \
     apt-get clean;
 
-# Make port 8000 available to the world outside this container
-EXPOSE 8000
+# Download LanguageTool server
+RUN wget https://languagetool.org/download/LanguageTool-stable.zip && \
+    unzip LanguageTool-stable.zip && \
+    rm LanguageTool-stable.zip
 
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+# Make port 5000 available to the world outside this container
+EXPOSE 5000
 
-# docker run -p 8000:8000 <image_id>
+# Expose port for LanguageTool server
+EXPOSE 8081
+
+# Run both LanguageTool server and Flask app
+CMD ["sh", "-c", "java -cp LanguageTool-*/languagetool-server.jar org.languagetool.server.HTTPServer --port 8081 & python app.py"]
