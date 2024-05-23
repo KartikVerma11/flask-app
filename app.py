@@ -6,13 +6,17 @@ from textblob import TextBlob
 import language_tool_python
 import requests
 from abydos.phonetic import Soundex, Metaphone, Caverphone, NYSIIS
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/": {"origins": ""}})
 
 # ******************
 # text correction API authentication
-api_key_textcorrection = "eaeb9fb5a72f4e529111856dfabd43aa"
+api_key_textcorrection = os.getenv('api_key_textcorrection')
 endpoint_textcorrection = "https://api.bing.microsoft.com/"
 
 # *****************
@@ -59,13 +63,17 @@ def spelling_accuracy(extracted_text):
 
 # *****************
 def gramatical_accuracy(extracted_text):
-  spell_corrected = TextBlob(extracted_text).correct()
-  correct_text = my_tool.correct(spell_corrected)
-  extracted_text_set = set(spell_corrected.split(" "))
-  correct_text_set = set(correct_text.split(" "))
-  n = max(len(extracted_text_set - correct_text_set),
-          len(correct_text_set - extracted_text_set))
-  return ((len(spell_corrected) - n)/(len(spell_corrected)+1))*100
+  try:
+    spell_corrected = TextBlob(extracted_text).correct()
+    correct_text = my_tool.correct(spell_corrected)
+    extracted_text_set = set(spell_corrected.split(" "))
+    correct_text_set = set(correct_text.split(" "))
+    n = max(len(extracted_text_set - correct_text_set),
+            len(correct_text_set - extracted_text_set))
+    return ((len(spell_corrected) - n) / (len(spell_corrected) + 1)) * 100
+  except Exception as e:
+    print("Error in gramatical_accuracy:", e)
+    return 0  # Return a default value or handle the error as needed
 
 
 # ******************
@@ -253,4 +261,4 @@ def submit_quiz():
 # **********************
 if __name__ == '__main__':
   print("server is running on port 8000")
-  app.run(debug=True, host='0.0.0.0', port=8000)
+  app.run(debug=True, host='0.0.0.0', port=os.getenv('port'))
