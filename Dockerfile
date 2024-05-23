@@ -19,13 +19,8 @@ RUN apt-get update && \
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
 
-# Run Gunicorn to serve the Flask app
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--timeout", "120", "app:app"]
-
-# Health check to ensure the container is running properly
-HEALTHCHECK --interval=30s --timeout=5s \
-  CMD curl --fail http://localhost:8000/health || exit 1
+# Run Gunicorn to serve the Flask app with increased timeout
+# CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--timeout", "120", "app:app"]
+CMD ["gunicorn", "app:app"]
 
 # docker run -p 8000:8000 <image_id>
-
-# change this to dockerFile
