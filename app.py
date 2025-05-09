@@ -51,15 +51,42 @@ def spelling_accuracy(extracted_text):
   spell_corrected = TextBlob(extracted_text).correct()
   return ((len(extracted_text) - (levenshtein(extracted_text, spell_corrected)))/(len(extracted_text)+1))*100
 
+# def gramatical_accuracy(extracted_text):
+#   spell_corrected = TextBlob(extracted_text).correct()
+#   my_tool = language_tool_python.LanguageTool('en-US')
+#   correct_text = my_tool.correct(spell_corrected)
+#   extracted_text_set = set(spell_corrected.split(" "))
+#   correct_text_set = set(correct_text.split(" "))
+#   n = max(len(extracted_text_set - correct_text_set),
+#           len(correct_text_set - extracted_text_set))
+#   return ((len(spell_corrected) - n)/(len(spell_corrected)+1))*100
+
+
 def gramatical_accuracy(extracted_text):
-  spell_corrected = TextBlob(extracted_text).correct()
-  my_tool = language_tool_python.LanguageTool('en-US')
-  correct_text = my_tool.correct(spell_corrected)
-  extracted_text_set = set(spell_corrected.split(" "))
-  correct_text_set = set(correct_text.split(" "))
-  n = max(len(extracted_text_set - correct_text_set),
-          len(correct_text_set - extracted_text_set))
-  return ((len(spell_corrected) - n)/(len(spell_corrected)+1))*100
+    try:
+        # Spell correction
+        spell_corrected = TextBlob(extracted_text).correct()
+
+        # Grammar check with error handling
+        try:
+            my_tool = language_tool_python.LanguageTool('en-US')
+            correct_text = my_tool.correct(str(spell_corrected))
+        except Exception as e:
+            print(f"[LanguageTool ERROR] {e}")
+            # Fallback: return accuracy based only on spell correction
+            correct_text = str(spell_corrected)
+
+        # Accuracy comparison
+        extracted_text_set = set(str(spell_corrected).split())
+        correct_text_set = set(correct_text.split())
+        n = max(len(extracted_text_set - correct_text_set),
+                len(correct_text_set - extracted_text_set))
+        return ((len(spell_corrected) - n) / (len(spell_corrected) + 1)) * 100
+
+    except Exception as e:
+        print(f"[Overall ERROR] {e}")
+        return 0.0  # Return a safe fallback
+
 
 def percentage_of_corrections(extracted_text):
   data = {'text': extracted_text}
