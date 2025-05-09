@@ -54,7 +54,7 @@ def spelling_accuracy(extracted_text):
 def gramatical_accuracy(extracted_text):
   spell_corrected = TextBlob(extracted_text).correct()
   my_tool = language_tool_python.LanguageTool('en-US')
-  # correct_text = my_tool.correct(spell_corrected)
+  correct_text = my_tool.correct(spell_corrected)
   extracted_text_set = set(spell_corrected.split(" "))
   correct_text_set = set(correct_text.split(" "))
   n = max(len(extracted_text_set - correct_text_set),
