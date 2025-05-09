@@ -224,6 +224,10 @@ def submit_quiz():
     logging.error(f"An error occurred: {e}")
     return jsonify({"ok": False, "message": "Internal Server Error"}), 500
 
+@app.route('/api/check', methods=['GET'])
+def check_api():
+    return jsonify({"ok": True, "message": "API is running"}), 200
+
 @app.errorhandler(Exception)
 def handle_exception(e):
   logging.error(f"An error occurred: {e}")
