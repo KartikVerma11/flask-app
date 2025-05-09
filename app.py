@@ -24,7 +24,7 @@ CORS(app, origins=["*"])
 api_key_textcorrection = os.getenv('api_key_textcorrection')
 endpoint_textcorrection = "https://api.bing.microsoft.com/"
 
-my_tool = language_tool_python.LanguageTool('en-US')
+# my_tool = language_tool_python.LanguageTool('en-US')
 
 # Load models
 with open(r"Random_Forest_Model.sav", 'rb') as file:
@@ -53,7 +53,8 @@ def spelling_accuracy(extracted_text):
 
 def gramatical_accuracy(extracted_text):
   spell_corrected = TextBlob(extracted_text).correct()
-  correct_text = my_tool.correct(spell_corrected)
+  my_tool = language_tool_python.LanguageTool('en-US')
+  # correct_text = my_tool.correct(spell_corrected)
   extracted_text_set = set(spell_corrected.split(" "))
   correct_text_set = set(correct_text.split(" "))
   n = max(len(extracted_text_set - correct_text_set),
