@@ -162,6 +162,12 @@ def get_result(lang_vocab, memory, speed, visual, audio, survey):
       output = "There is a low chance of the applicant to have dyslexia."
   return output
 
+def check_flag(data):
+  flag = data.get("flag", None)
+  if flag == 0:
+      return "There's a very slim chance that this person is suffering from dyslexia or dysgraphia"
+  return None
+
 @app.route('/api/submit_text', methods=['POST', 'GET'])
 def submit_text():
   if request.method == 'GET' or not request.data:
@@ -192,6 +198,11 @@ def submit_text():
         "message": "Score Available",
         "result": result,
     }
+
+    flag_message = check_flag(request_data)
+    if flag_message:
+      response["result"] = flag_message
+
     return jsonify(response), 200  # Status code 200 for OK
 
   except Exception as e:
